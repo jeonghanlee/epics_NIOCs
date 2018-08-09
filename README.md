@@ -12,7 +12,6 @@ This envrionment may help users to setup the multiple soft IOCs on a Linux Host.
 
 ```sh
 epics_NIOCS (master)$ bash nioc_setup.bash 
-[sudo] password for iocuser: 
 #
 Creating epicsNIOCs for Debian System
 #
@@ -36,7 +35,24 @@ EPICS_CA_ADDR_LIST      :
 #  interface (usually 127.255.255.255) to each IOC's 
 #  EPICS_CA_ADDR_LIST"                         Ralph
 # ---------------------------------------------------
+
+epics_NIOCS (master)$ sudo systemctl restart NetworkManager
+epics_NIOCS (master)$ sudo systemctl status -l NetworkManager
+
 ```
+
+
+## Note
+
+When a client gets a pv, the host IOC will show the following messages:
+
+```sh
+CAS: UDP send to 10.0.6.172:44648 failed - Operation not permitted
+CAS: UDP send to 10.4.8.12:35674 failed - Operation not permitted
+CAS: UDP send to 10.4.8.12:56210 failed - Operation not permitted
+CAS: UDP send to 10.4.8.12:57296 failed - Operation not permitted
+```
+
 
 ## References
 

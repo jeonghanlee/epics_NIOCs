@@ -1,6 +1,6 @@
 # epics_NIOCs
 
-This envrionment may help users to setup the multiple soft IOCs on a Linux Host. The information comes from *How to Make Channel Access Reach Multiple Soft IOCs on a Linux Host* [1]. Please lookt at Ref.[1] for further detailed information.
+This envrionment may help users to setup the multiple soft IOCs on a Linux Host. The information comes from *How to Make Channel Access Reach Multiple Soft IOCs on a Linux Host* [1]. Please lookt at Ref.[1] for further detailed information. 
 
 
 ## Target OSs
@@ -11,22 +11,23 @@ This envrionment may help users to setup the multiple soft IOCs on a Linux Host.
 ##
 
 ```sh
-epics_NIOCs (master)$ bash nioc_setup.bash
+epics_NIOCS (master)$ bash nioc_setup.bash 
+[sudo] password for iocuser: 
 #
 Creating epicsNIOCs for Debian System
 #
 #
 Installing epicsNIOCs to /etc/network/if-up.d/
 #
-Installing epicsNIOCs to /etc/network/if-down.d/
+Installing epicsNIOCs to /etc/network/if-post-down.d/
 #
 Can you see them in there? >>> 
--rwxr-xr-x 1 root root 820 Aug  9 12:37 /etc/network/if-down.d/epicsNIOCs
--rwxr-xr-x 1 root root 820 Aug  9 12:37 /etc/network/if-up.d/epicsNIOCs
+-rwxr-xr-x 1 root root 826 Aug  9 14:39 /etc/network/if-up.d/epicsNIOCs
+-rwxr-xr-x 1 root root 826 Aug  9 14:39 /etc/network/if-post-down.d/epicsNIOCs
 #
 Please check the following EPICS VARIABLES:
 # 
-EPICS_CA_AUTO_ADDR_LIST : no
+EPICS_CA_AUTO_ADDR_LIST : 
 EPICS_CA_ADDR_LIST      : 
 #
 # ---------------------------------------------------
@@ -35,8 +36,6 @@ EPICS_CA_ADDR_LIST      :
 #  interface (usually 127.255.255.255) to each IOC's 
 #  EPICS_CA_ADDR_LIST"                         Ralph
 # ---------------------------------------------------
-
-
 ```
 
 ## References

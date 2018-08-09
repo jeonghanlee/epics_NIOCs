@@ -46,9 +46,10 @@ function create_debian_script
     cat > ${NIOC_TMP_PATH}/${NIOC_SCRIPT} << 'EOL'
 #!/bin/sh -e
 # Called when an interface goes up / down
-
+#
 # Author: Ralph Lange <Ralph.Lange@gmx.de>
-
+#       : Jeong Han Lee <jeonghan.lee@gmail.com>
+#
 # Make any incoming Channel Access name resolution queries go to the broadcast address
 # (to hit all IOCs on this host)
 
@@ -58,9 +59,9 @@ PORT=5064
 [ "$METHOD" != "none" ] || exit 0
 [ "$IFACE" != "lo" ] || exit 0
 
-line=`ifconfig $IFACE | grep "inet addr"`
-addr=`echo $line | sed -e 's/.*inet addr:\([0-9\.]*\).*/\1/'`
-bcast=`echo $line | sed -e 's/.*Bcast:\([0-9\.]*\).*/\1/'`
+line=`ip addr show $IFACE`
+addr=`echo $line | grep -Po 'inet \K[\d.]+'`
+bcast=`echo $line |  grep -Po 'brd \K[\d.]+'`
 
 [ -z "$addr" -o -z "$bcast" ] && return 1
 
@@ -89,7 +90,7 @@ function create_centos_script
 # Called when an interface goes up / down
 
 # Author: Ralph Lange <Ralph.Lange@gmx.de>
-
+#       : Jeong Han Lee <jeonghan.lee@gmail.com>
 # Make any incoming Channel Access name resolution queries go to the broadcast address
 # (to hit all IOCs on this host)
 
@@ -101,18 +102,9 @@ MODE=$2
 
 [ "$IFACE" != "lo" ] || exit 0
 
-line=`/sbin/ifconfig $IFACE | grep "inet "`
-
-# Fedora ifconfig output
-addr=`echo $line | sed -e 's/.*inet \([0-9.]*\).*/\1/'`
-bcast=`echo $line | sed -e 's/.*broadcast \([0-9.]*\).*/\1/'`
-
-if [ -z "$addr" -o -z "$bcast" ]
-then
-    # RHEL ifconfig output
-    addr=`echo $line | sed -e 's/.*inet addr:\([0-9.]*\).*/\1/'`
-    bcast=`echo $line | sed -e 's/.*Bcast:\([0-9.]*\).*/\1/'`
-fi
+line=`ip addr show $IFACE`
+addr=`echo $line | grep -Po 'inet \K[\d.]+'`
+bcast=`echo $line |  grep -Po 'brd \K[\d.]+'`
 
 [ -z "$addr" -o -z "$bcast" ] && return 1
 
@@ -152,18 +144,29 @@ function find_dist
 
 function setup_nioc
 {
+    
    
     if ! [ -z "${debian}" ]; then
 	create_debian_script
+
+	# 
+	# On Debian 8/9, 01ifupdown in /etc/NetworkManager/dispatcher.d will execute
+	# files in /etc/network/if-up.d and /etc/network/if-post-down.d
+	# through systemctl start NetworkManager if one uses NetworkManager
+	# 
+	local TARGET1=/etc/network/if-up.d/
+	local TARGET2=/etc/network/if-post-down.d/
+	
 	printf "#\n"
-	printf "Installing %s to /etc/network/if-up.d/\n" "${NIOC_SCRIPT}"
-	${SUDO_CMD} install -m 755 ${SC_TOP}/${NIOC_TMP_PATH}/${NIOC_SCRIPT} /etc/network/if-up.d/
+	printf "Installing %s to %s\n" "${NIOC_SCRIPT}" "${TARGET1}"
+	${SUDO_CMD} install -m 755 ${SC_TOP}/${NIOC_TMP_PATH}/${NIOC_SCRIPT} ${TARGET1}
 	printf "#\n"
-	printf "Installing %s to /etc/network/if-down.d/\n" "${NIOC_SCRIPT}"
-	${SUDO_CMD} install -m 755 ${SC_TOP}/${NIOC_TMP_PATH}/${NIOC_SCRIPT} /etc/network/if-down.d/
+	printf "Installing %s to ${TARGET2}\n" "${NIOC_SCRIPT}"
+	${SUDO_CMD} install -m 755 ${SC_TOP}/${NIOC_TMP_PATH}/${NIOC_SCRIPT} ${TARGET2}
 	printf "#\n"
 	printf "Can you see them in there? >>> \n"
-	ls -lta /etc/network/if-{up,down}.d/${NIOC_SCRIPT}
+	ls -lta ${TARGET1}${NIOC_SCRIPT}
+	ls -lta ${TARGET2}${NIOC_SCRIPT}
     elif ! [ -z "${centos}" ]; then
 	create_centos_script
 	printf "#\n"

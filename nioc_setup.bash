@@ -102,7 +102,7 @@ MODE=$2
 
 [ "$IFACE" != "lo" ] || exit 0
 
-line=`ip addr show $IFACE`
+line=`/sbin/ip addr show $IFACE`
 addr=`echo $line | grep -Po 'inet \K[\d.]+'`
 bcast=`echo $line |  grep -Po 'brd \K[\d.]+'`
 

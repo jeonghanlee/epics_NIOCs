@@ -18,8 +18,8 @@
 #
 # Author  : Jeong Han Lee
 # email   : jeonghan.lee@gmail.com
-# Date    : Thursday, August  9 14:47:50 CEST 2018
-# version : 0.0.2
+# Date    : Friday, August 10 16:48:39 CEST 2018
+# version : 0.0.3
 
 # All technical information one can find the following site:
 # https://wiki-ext.aps.anl.gov/epics/index.php/How_to_Make_Channel_Access_Reach_Multiple_Soft_IOCs_on_a_Linux_Host
@@ -32,7 +32,7 @@ declare -gr SC_TOP="${SC_SCRIPT%/*}"
 declare -gr SUDO_CMD="sudo";
 
 
-declare -gr NIOC_SCRIPT="90.epicsNIOCs"
+declare -gr NIOC_SCRIPT="epicsNIOCs"
 
 declare -gr NIOC_TMP_PATH=".tmp/"
 

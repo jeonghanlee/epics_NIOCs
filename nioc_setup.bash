@@ -18,11 +18,12 @@
 #
 # Author  : Jeong Han Lee
 # email   : jeonghan.lee@gmail.com
-# Date    : Friday, August 10 16:48:39 CEST 2018
-# version : 0.0.3
+# Date    : Monday, August 13 23:36:03 CEST 2018
+# version : 0.0.4
 
 # All technical information one can find the following site:
 # https://wiki-ext.aps.anl.gov/epics/index.php/How_to_Make_Channel_Access_Reach_Multiple_Soft_IOCs_on_a_Linux_Host
+
 
 
 declare -gr SC_SCRIPT="$(realpath "$0")"
@@ -144,8 +145,7 @@ function find_dist
 
 function setup_nioc
 {
-    
-   
+
     if ! [ -z "${debian}" ]; then
 	create_debian_script
 
@@ -202,10 +202,8 @@ function epics_env
     printf "#  EPICS_CA_ADDR_LIST\"                         Ralph\n";
     printf "# ---------------------------------------------------\n"
 
-
-
-    
 }
+
 
 debian=""
 centos=""
@@ -235,5 +233,25 @@ ${SUDO_CMD} -v
 mkdir -p ${SC_TOP}/${NIOC_TMP_PATH}
 
 setup_nioc 
+
+
+printf "\n";
+printf  ">>>> NetworkManager will be restarted.\n";
+read -p ">>>> Do you want to continue (y/n)? " answer
+case ${answer:0:1} in
+    y|Y )
+	printf "#\n"
+	printf "NetworkManager is restarting .... \n"
+	printf "#\n"
+	${SUDO_CMD} systemctl restart NetworkManager
+	${SUDO_CMD} systemctl status NetworkManager --no-pager
+	;;
+    * )
+	printf "#\n"
+        printf "One should restart NetworkManager later.\n";
+	printf "sudo systemctrl restart NetworkManager\n";
+	printf "#\n"
+	;;
+esac
 
 epics_env

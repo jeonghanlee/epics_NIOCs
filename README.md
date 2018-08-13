@@ -1,17 +1,18 @@
 # epics_NIOCs
 
-This envrionment may help users to setup the multiple soft IOCs on a Linux Host. The information comes from *How to Make Channel Access Reach Multiple Soft IOCs on a Linux Host* [1]. Please lookt at Ref.[1] for further detailed information. 
+This envrionment may help users to setup the multiple soft IOCs on a Linux Host. The information comes from *How to Make Channel Access Reach Multiple Soft IOCs on a Linux Host* [1]. However, the reference is incorrect to get ip address and broadcast within scripts. Here I update it in order to use the morden Linux network command line tools, i.e., ip. 
 
 
 ## Target OSs
 
-* Debian
-* CentOS
+* Debian 8/9
+* CentOS 7.5
 
-##
+
+## Without ReStart NetworkManager
 
 ```sh
-epics_NIOCS (master)$ bash nioc_setup.bash 
+niocs (master)$ bash nioc_setup.bash 
 #
 Creating epicsNIOCs for Debian System
 #
@@ -21,13 +22,20 @@ Installing epicsNIOCs to /etc/network/if-up.d/
 Installing epicsNIOCs to /etc/network/if-post-down.d/
 #
 Can you see them in there? >>> 
--rwxr-xr-x 1 root root 826 Aug  9 14:39 /etc/network/if-up.d/epicsNIOCs
--rwxr-xr-x 1 root root 826 Aug  9 14:39 /etc/network/if-post-down.d/epicsNIOCs
+-rwxr-xr-x 1 root root 826 Aug 13 23:27 /etc/network/if-up.d/epicsNIOCs
+-rwxr-xr-x 1 root root 826 Aug 13 23:27 /etc/network/if-post-down.d/epicsNIOCs
+
+>>>> NetworkManager will be restarted.
+>>>> Do you want to continue (y/n)? n
+#
+One should restart NetworkManager later.
+sudo systemctrl restart NetworkManager
+#
 #
 Please check the following EPICS VARIABLES:
 # 
-EPICS_CA_AUTO_ADDR_LIST : 
-EPICS_CA_ADDR_LIST      : 
+EPICS_CA_AUTO_ADDR_LIST : xxx
+EPICS_CA_ADDR_LIST      : x.x.x.x x.x.x.x
 #
 # ---------------------------------------------------
 # "If you need connections between IOCs on one host,
@@ -36,23 +44,65 @@ EPICS_CA_ADDR_LIST      :
 #  EPICS_CA_ADDR_LIST"                         Ralph
 # ---------------------------------------------------
 
-epics_NIOCS (master)$ sudo systemctl restart NetworkManager
-epics_NIOCS (master)$ sudo systemctl status -l NetworkManager
-
 ```
 
+## With Restart NetworkManager
+
+```sh
+niocs (master)$ bash nioc_setup.bash 
+#
+Creating epicsNIOCs for Debian System
+#
+#
+Installing epicsNIOCs to /etc/network/if-up.d/
+#
+Installing epicsNIOCs to /etc/network/if-post-down.d/
+#
+Can you see them in there? >>> 
+-rwxr-xr-x 1 root root 826 Aug 13 23:29 /etc/network/if-up.d/epicsNIOCs
+-rwxr-xr-x 1 root root 826 Aug 13 23:29 /etc/network/if-post-down.d/epicsNIOCs
+
+>>>> NetworkManager will be restarted.
+>>>> Do you want to continue (y/n)? y
+#
+NetworkManager is restarting .... 
+#
+● NetworkManager.service - Network Manager
+   Loaded: loaded (/lib/systemd/system/NetworkManager.service; enabled; vendor preset: enabled)
+   Active: active (running) since Mon 2018-08-13 23:29:19 CEST; 21ms ago
+     Docs: man:NetworkManager(8)
+ Main PID: 7374 (NetworkManager)
+    Tasks: 4 (limit: 4915)
+   CGroup: /system.slice/NetworkManager.service
+           └─7374 /usr/sbin/NetworkManager --no-daemon
+
+.....
+Hint: Some lines were ellipsized, use -l to show in full.
+#
+Please check the following EPICS VARIABLES:
+# 
+EPICS_CA_AUTO_ADDR_LIST : xxx
+EPICS_CA_ADDR_LIST      : x.x.x.x x.x.x.x
+#
+# ---------------------------------------------------
+# "If you need connections between IOCs on one host,
+#  please add the broadcast address of the loopback  
+#  interface (usually 127.255.255.255) to each IOC's 
+#  EPICS_CA_ADDR_LIST"                         Ralph
+# ---------------------------------------------------
+
+
+```
 
 ## Note
 
-When a client gets a pv, the host IOC will show the following messages:
+If one call caget or camonnitor with multiple PVs exist in multiple IOCs, each IOC may return the following message:
 
 ```sh
-CAS: UDP send to 10.0.6.172:44648 failed - Operation not permitted
-CAS: UDP send to 10.4.8.12:35674 failed - Operation not permitted
-CAS: UDP send to 10.4.8.12:56210 failed - Operation not permitted
-CAS: UDP send to 10.4.8.12:57296 failed - Operation not permitted
-```
+CAS: UDP send to x.x.x.x:44648 failed - Operation not permitted
 
+```
+The detailed discussion one can find in #1
 
 ## References
 

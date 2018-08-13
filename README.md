@@ -94,9 +94,15 @@ EPICS_CA_ADDR_LIST      : x.x.x.x x.x.x.x
 
 ```
 
+## Manual Setup
+
+Please look at scripts directory, drop it into a proper directory.
+* Debian : epicsNIOCs_Debian
+* CentOS : epicsNIOCs_CentOS
+
 ## Note
 
-If one call caget or camonnitor with multiple PVs exist in multiple IOCs, each IOC may return the following message:
+If one calls *caget* or *camonnitor* with multiple PVs exist in multiple IOCs, each IOC may return the following message:
 
 ```sh
 CAS: UDP send to x.x.x.x:44648 failed - Operation not permitted

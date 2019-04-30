@@ -1,6 +1,6 @@
 # epics_NIOCs
 
-This envrionment may help users to setup the multiple soft IOCs on a Linux Host. The information comes from *How to Make Channel Access Reach Multiple Soft IOCs on a Linux Host* [1]. However, the reference is incorrect to get ip address and broadcast within scripts. Here I update it in order to use the morden Linux network command line tools, i.e., ip. 
+This envrionment may help users to setup the multiple soft IOCs on a Linux Host. The information comes from *How to Make Channel Access Reach Multiple Soft IOCs on a Linux Host* [1]. However, the reference [1] is incorrect to get ip address and broadcast within scripts. Here I update it in order to use the morden Linux network command line tools, i.e., ip. The new EPICS web site [3] has the up-to-date information. 
 
 
 ## Target OSs
@@ -113,4 +113,5 @@ The detailed discussion one can find in Issue #1 [2].
 ## References
 
 [1] https://wiki-ext.aps.anl.gov/epics/index.php/How_to_Make_Channel_Access_Reach_Multiple_Soft_IOCs_on_a_Linux_Host      
-[2] https://github.com/jeonghanlee/epics_NIOCs/issues/1
+[2] https://github.com/jeonghanlee/epics_NIOCs/issues/1   
+[3] https://epics-controls.org/resources-and-support/documents/howto-documents/channel-access-reach-multiple-soft-iocs-linux/

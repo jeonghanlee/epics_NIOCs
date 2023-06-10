@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-#  Copyright (c) 2017 -2018 Jeong Han Lee
-#  Copyright (c) 2018  European Spallation Source ERIC
+#  Copyright (c) 2017 - 2018 Jeong Han Lee
+#  Copyright (c) 2018        European Spallation Source ERIC
+#  Copyright (c) 2023        Lawrence Livermore National Laboratory
 # 
 #  The program is free software: you can redistribute
 #  it and/or modify it under the terms of the GNU General Public License
@@ -18,8 +19,8 @@
 #
 # Author  : Jeong Han Lee
 # email   : jeonghan.lee@gmail.com
-# Date    : Monday, August 13 23:36:03 CEST 2018
-# version : 0.0.4
+# Date    : 2023-06-09
+# version : 0.0.5
 
 # All technical information one can find the following site:
 # https://wiki-ext.aps.anl.gov/epics/index.php/How_to_Make_Channel_Access_Reach_Multiple_Soft_IOCs_on_a_Linux_Host
@@ -72,6 +73,48 @@ then
 elif [ "$MODE" = "stop" ]
 then
     iptables -t nat -D PREROUTING -d $addr -p udp --dport $PORT -j DNAT --to-destination $bcast
+fi
+
+exit 0
+EOL
+
+}
+
+function create_rocky_script
+{
+    printf "#\n"
+    printf "Creating %s for Rocky Linux System\n", "${NIOC_SCRIPT}"
+    printf "#\n"
+    cat > ${NIOC_TMP_PATH}${NIOC_SCRIPT}  <<'EOL'
+
+#!/bin/sh -e
+# Called when an interface goes up / down
+
+# Author: Ralph Lange <Ralph.Lange@gmx.de>
+#       : Jeong Han Lee <jeonghan.lee@gmail.com>
+# Make any incoming Channel Access name resolution queries go to the broadcast address
+# (to hit all IOCs on this host)
+
+# Change this if you run CA on a non-standard port
+PORT=5064
+
+IFACE=$1
+MODE=$2
+
+[ "$IFACE" != "lo" ] || exit 0
+
+line=`/sbin/ip addr show $IFACE`
+addr=`echo $line | grep -Po 'inet \K[\d.]+'`
+bcast=`echo $line |  grep -Po 'brd \K[\d.]+'`
+
+[ -z "$addr" -o -z "$bcast" ] && return 1
+
+if [ "$MODE" = "up" ]
+then
+    /sbin/iptables -t nat -A PREROUTING -d $addr -p udp --dport $PORT -j DNAT --to-destination $bcast
+elif [ "$MODE" = "down" ]
+then
+    /sbin/iptables -t nat -D PREROUTING -d $addr -p udp --dport $PORT -j DNAT --to-destination $bcast
 fi
 
 exit 0
@@ -175,6 +218,14 @@ function setup_nioc
 	printf "#\n"
 	printf "Can you see them in there? >>> \n"
 	ls -lta /etc/NetworkManager/dispatcher.d/${NIOC_SCRIPT}
+    elif ! [ -z "${rocky}" ]; then
+	create_rocky_script
+	printf "#\n"
+	printf "Installing %s to /etc/NetworkManager/dispatcher.d/\n" "${NIOC_SCRIPT}"
+	${SUDO_CMD} install -m 755 ${SC_TOP}/${NIOC_TMP_PATH}/${NIOC_SCRIPT} /etc/NetworkManager/dispatcher.d/
+	printf "#\n"
+	printf "Can you see them in there? >>> \n"
+	ls -lta /etc/NetworkManager/dispatcher.d/${NIOC_SCRIPT}
     else
 	printf "\n";
 	printf "Doesn't support this case\n";
@@ -219,6 +270,10 @@ case "$dist" in
     *CentOS*)
 	centos="1"
 	;;
+    *Rocky*)
+	rocky="1"
+	;;
+
     *)
 	printf "\n";
 	printf "Doesn't support the detected $dist\n";

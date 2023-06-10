@@ -5,6 +5,9 @@ This envrionment may help users to setup the multiple soft IOCs on a Linux Host.
 
 ## Target OSs
 
+* Rocky 9
+
+#$ Tested
 * Debian 8/9
 * CentOS 7.5
 
